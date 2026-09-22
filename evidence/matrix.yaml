@@ -1,0 +1,272 @@
+# Evidence matrix — Reddit-Community-reply-assistant (schema v1).
+# Spec: "Evidence Matrix Requirement — Data-Cluster Deterministic Verification" (art_6m9smoMm).
+# Verifier: tools/verify_evidence_matrix.py, vendored byte-identical from
+# icohangar-ops/consensus-hardening-protocol@88067e4 (canonical kit PR #5)
+# sha256 238e02ab19d59e8b4dc2f6cc5f7ddf099f17a32079b1bc62aa9fcbafbfd297e8.
+# Run: python3 tools/verify_evidence_matrix.py  (exit 0 only when every row verifies).
+
+schema_version: 1
+repo: Reddit-Community-reply-assistant
+
+claims:
+  # --- The Public Good / How It Works ---
+
+  - id: C001
+    claim: >-
+      Scans configured subreddits for advice-seeking threads through the Reddit
+      API (snoowrap search with retry-hardened requests), driven by the scan route.
+    source: "README.md#the-public-good"
+    evidence:
+      - type: script
+        ref: "scripts/verify_subreddit_scan.sh"
+        timeout_seconds: 120
+
+  - id: C002
+    claim: >-
+      Monitors subreddits like r/smallbusiness, r/startups, r/Entrepreneur, r/SaaS
+      and more — the seeded monitoring list includes those subreddits.
+    source: "README.md#how-it-works"
+    evidence:
+      - type: script
+        ref: "scripts/verify_subreddit_scan.sh"
+        timeout_seconds: 120
+
+  - id: C003
+    claim: >-
+      Scores each thread 0–100 based on engagement + relevance: keyword,
+      competitor, and intent-signal points fused with engagement weights in
+      src/lib/scorer.ts and clamped to the 0–100 range.
+    source: "README.md#how-it-works"
+    evidence:
+      - type: script
+        ref: "scripts/verify_scoring_claims.sh"
+        timeout_seconds: 120
+
+  - id: C004
+    claim: >-
+      Detects buying-intent signals — comparing options, expressing frustration,
+      asking for recommendations — via the intent-signal patterns in
+      src/lib/scorer.ts.
+    source: "README.md#how-it-works"
+    evidence:
+      - type: script
+        ref: "scripts/verify_scoring_claims.sh"
+        timeout_seconds: 120
+
+  - id: C005
+    claim: >-
+      Drafts helpful replies that sound like a knowledgeable community member, not
+      an ad — the drafting system prompt in src/lib/reply-drafter.ts forbids
+      company mentions, self-promotion, and marketing language.
+    source: "README.md#the-public-good"
+    evidence:
+      - type: script
+        ref: "scripts/verify_reply_etiquette.sh"
+        timeout_seconds: 120
+
+  - id: C006
+    claim: >-
+      Delivers an email digest of the top-ranked opportunities (top 10 threads)
+      via SMTP, sent on demand from the digest API (src/lib/email-service.ts).
+    source: "README.md#the-public-good"
+    evidence:
+      - type: script
+        ref: "scripts/verify_digest_email.sh"
+        timeout_seconds: 120
+
+  # --- Tech Stack ---
+
+  - id: C007
+    claim: Dashboard is a Next.js 16 application using the App Router.
+    source: "README.md#tech-stack"
+    evidence:
+      - type: manifest_field
+        ref: "package.json:dependencies.next"
+        equals: "^16.3.3"
+      - type: script
+        ref: "scripts/verify_stack.sh"
+        timeout_seconds: 120
+
+  - id: C008
+    claim: The codebase is written in TypeScript.
+    source: "README.md#tech-stack"
+    evidence:
+      - type: manifest_field
+        ref: "package.json:devDependencies.typescript"
+        equals: "^5"
+
+  - id: C009
+    claim: Data storage uses Prisma over SQLite.
+    source: "README.md#tech-stack"
+    evidence:
+      - type: manifest_field
+        ref: "package.json:dependencies.prisma"
+        equals: "^6.19.3"
+      - type: script
+        ref: "scripts/verify_stack.sh"
+        timeout_seconds: 120
+
+  - id: C010
+    claim: Dashboard UI is built with Tailwind CSS and shadcn/ui components.
+    source: "README.md#tech-stack"
+    evidence:
+      - type: manifest_field
+        ref: "package.json:devDependencies.tailwindcss"
+        equals: "^4"
+      - type: script
+        ref: "scripts/verify_stack.sh"
+        timeout_seconds: 120
+
+  - id: C011
+    claim: Reddit API integration goes through snoowrap.
+    source: "README.md#tech-stack"
+    evidence:
+      - type: manifest_field
+        ref: "package.json:dependencies.snoowrap"
+        equals: "^1.23.0"
+      - type: script
+        ref: "scripts/verify_subreddit_scan.sh"
+        timeout_seconds: 120
+
+  - id: C012
+    claim: >-
+      AI reply drafting runs through the z-ai-web-dev-sdk LLM chat completions
+      with retry on transient failures.
+    source: "README.md#tech-stack"
+    evidence:
+      - type: script
+        ref: "scripts/verify_reply_etiquette.sh"
+        timeout_seconds: 120
+
+  # --- Setup ---
+
+  - id: C013
+    claim: The development server starts with bun run dev (next dev on port 3000).
+    source: "README.md#setup"
+    evidence:
+      - type: manifest_field
+        ref: "package.json:scripts.dev"
+        equals: "next dev -p 3000 2>&1 | tee dev.log"
+
+  - id: C014
+    claim: >-
+      Credentials are configured by copying the committed .env.example template
+      to .env.
+    source: "README.md#setup"
+    evidence:
+      - type: artifact_hash
+        ref: ".env.example"
+        sha256: "84cae60561522a3e593a61d1bebc2e3b82606bf9714180c1d077cc406eb0390b"
+
+  # --- License ---
+
+  - id: C015
+    claim: MIT — free to use, modify, and distribute.
+    source: "README.md#license"
+    evidence:
+      - type: artifact_hash
+        ref: "LICENSE"
+        sha256: "194bd3b7023d984b60eb1f50add941ea5797f2dfca0dcf2eda9d0f1aafc8a09d"
+
+  # --- CHP Governance ---
+
+  - id: C016
+    claim: >-
+      R0 gate is configured with Solvable, Scoped, Valid, and Worth_it checks —
+      current configured values are true, true, true, and false respectively
+      (.chp/R0_CONFIG.yaml).
+    source: "README.md#chp-governance"
+    evidence:
+      - type: manifest_field
+        ref: ".chp/R0_CONFIG.yaml:r0_gate.solvable"
+        equals: true
+      - type: manifest_field
+        ref: ".chp/R0_CONFIG.yaml:r0_gate.scoped"
+        equals: true
+      - type: manifest_field
+        ref: ".chp/R0_CONFIG.yaml:r0_gate.valid"
+        equals: true
+      - type: manifest_field
+        ref: ".chp/R0_CONFIG.yaml:r0_gate.worth_it"
+        equals: false
+
+  - id: C017
+    claim: >-
+      Foundation disclosure thresholds: foundation pass threshold 70, at most 3
+      weakest assumptions, at most 2 invalidation conditions, and 1 key
+      vulnerability required.
+    source: "README.md#chp-governance"
+    evidence:
+      - type: manifest_field
+        ref: ".chp/R0_CONFIG.yaml:foundation.pass_threshold"
+        equals: 70
+      - type: manifest_field
+        ref: ".chp/R0_CONFIG.yaml:foundation.max_weak_assumptions"
+        equals: 3
+      - type: manifest_field
+        ref: ".chp/R0_CONFIG.yaml:foundation.max_invalidation_conditions"
+        equals: 2
+      - type: manifest_field
+        ref: ".chp/R0_CONFIG.yaml:foundation.require_key_vulnerability"
+        equals: true
+
+  - id: C018
+    claim: >-
+      Adversarial layer is mandatory at Phase 0 and Round 3 — both devil's
+      advocate gates are switched on in configuration.
+    source: "README.md#chp-governance"
+    evidence:
+      - type: manifest_field
+        ref: ".chp/R0_CONFIG.yaml:adversary.phase0_mandatory"
+        equals: true
+      - type: manifest_field
+        ref: ".chp/R0_CONFIG.yaml:adversary.round3_mandatory"
+        equals: true
+
+  - id: C019
+    claim: >-
+      Decision states progress EXPLORING → PROVISIONAL → PROVISIONAL_LOCK →
+      LOCKED, as defined in .chp/STATE_MACHINE.md.
+    source: "README.md#chp-governance"
+    evidence:
+      - type: script
+        ref: "scripts/verify_chp_artifacts.sh"
+        timeout_seconds: 120
+
+  - id: C020
+    claim: >-
+      Third-party validation requires an independent CONFIRM before lock and
+      handles REJECT, as defined in .chp/STATE_MACHINE.md.
+    source: "README.md#chp-governance"
+    evidence:
+      - type: script
+        ref: "scripts/verify_chp_artifacts.sh"
+        timeout_seconds: 120
+
+  - id: C021
+    claim: >-
+      The four CHP compliance artifacts exist as committed files:
+      .chp/STATE_MACHINE.md, .chp/R0_CONFIG.yaml, .chp/ADVERSARIAL_PROMPTS.md,
+      .chp/CHP_COMPLIANCE.md.
+    source: "README.md#compliance-artifacts"
+    evidence:
+      - type: artifact_hash
+        ref: ".chp/STATE_MACHINE.md"
+        sha256: "4dc06fa6fa536292089c58c993e605067fef56305462982234ced168667e30a1"
+      - type: artifact_hash
+        ref: ".chp/R0_CONFIG.yaml"
+        sha256: "65314d74f02af15f00785d9c989e89021d480d7abb5a3558b7baf280683e52aa"
+      - type: artifact_hash
+        ref: ".chp/ADVERSARIAL_PROMPTS.md"
+        sha256: "18637d2ddec313e46575c4c3d85816d6045ab13d80801a6702b2b21a55455b28"
+      - type: artifact_hash
+        ref: ".chp/CHP_COMPLIANCE.md"
+        sha256: "a07e3fb9894bce0bbc817a256382a98fe6d2c10775248b37b88212e003821ff5"
+
+  - id: C022
+    claim: CHP version in use is cognitive-mesh-orchestrator 0.1.0.
+    source: "README.md#chp-version"
+    evidence:
+      - type: script
+        ref: "scripts/verify_chp_artifacts.sh"
+        timeout_seconds: 120

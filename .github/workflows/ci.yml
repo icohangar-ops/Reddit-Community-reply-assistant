@@ -40,3 +40,20 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - run: npx prisma generate
       - run: npx tsc --noEmit
+
+  # Fail-closed evidence-matrix gate (spec: "Evidence Matrix Requirement —
+  # Data-Cluster Deterministic Verification"). Runs BEFORE any dependency
+  # installation — no npm ci / bun install happens in this job; the matrix's
+  # script rows execute with the toolchain only. No skip flags, no quiet modes.
+  evidence-matrix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - name: Verify evidence matrix
+        run: python3 tools/verify_evidence_matrix.py

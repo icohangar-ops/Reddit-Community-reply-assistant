@@ -33,7 +33,7 @@ This project solves that by:
 1. **Scanning relevant subreddits** for threads where people are asking for advice in specific domains (finance, operations, business strategy)
 2. **Scoring threads** by engagement and buying-intent signals to surface the most valuable conversations
 3. **Drafting helpful replies** that sound like a knowledgeable community member, not an ad
-4. **Sending a daily digest** so experts can review and post genuinely useful answers in minutes
+4. **Sending an email digest** so experts can review and post genuinely useful answers in minutes
 
 The net effect is **better answers for Reddit users** and **reduced self-promotional noise** — because businesses that have an efficient way to contribute value tend to engage authentically rather than spamming.
 
@@ -42,8 +42,8 @@ The net effect is **better answers for Reddit users** and **reduced self-promoti
 - Monitors subreddits like r/smallbusiness, r/startups, r/Entrepreneur, r/SaaS, and more
 - Uses AI to detect buying-intent signals (comparing options, expressing frustration, asking for recommendations)
 - Scores each thread 0–100 based on engagement + relevance
-- Generates draft replies that follow Reddit etiquette (no company mentions, no links, no marketing language)
-- Delivers a daily email digest with the top opportunities
+- Generates draft replies that follow Reddit etiquette (the drafting prompt forbids company mentions, self-promotion, and marketing language)
+- Delivers an email digest with the top-ranked opportunities (top 10 threads), sent on demand via the digest API
 
 ## Tech Stack
 
