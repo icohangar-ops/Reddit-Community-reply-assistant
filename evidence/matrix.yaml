@@ -166,7 +166,7 @@ claims:
     evidence:
       - type: artifact_hash
         ref: "LICENSE"
-        sha256: "0000000000000000000000000000000000000000000000000000000000000000"
+        sha256: "194bd3b7023d984b60eb1f50add941ea5797f2dfca0dcf2eda9d0f1aafc8a09d"
 
   # --- CHP Governance ---
 
